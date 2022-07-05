@@ -2,8 +2,11 @@ import config from "../config/config";
 import app from "./express";
 import mongoose from "mongoose";
 
-//db connection
+// db connection
 mongoose.connect(config.mongoUri);
+
+// server start admin check
+
 
 app.listen(config.port, (err) => {
   if (err) console.log(err);

@@ -1,0 +1,67 @@
+import User from "../models/user.model";
+import jwt from "jsonwebtoken";
+import { expressjwt } from "express-jwt";
+
+const signin = async (req, res) => {
+  try {
+    const user = await User.findOne({ address: req.body.address });
+    if (!user) return res.status(401).json({ error: "User not found" });
+    if (!user.authenticate(req.body.message, req.body.signature))
+      return res
+        .status(401)
+        .json({ error: "Signature and address don't match" });
+
+    const token = jwt.sign({ address: user.address }, config.jwtSecret);
+
+    res.cookie("t", token, { expire: new Date() + 9999 });
+
+    res.status(200).json({
+      token,
+      user,
+    });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
+const signout = (req, res) => {
+  res.clearCookie("t");
+  return res.status(200).json({
+    message: "Signed out",
+  });
+};
+
+// Authorization: Bearer jsonwebtoken decode
+const requireSignin = expressjwt({
+  secret: config.jwtSecret,
+  algorithms: ["HS256"],
+  userProperty: "auth",
+});
+
+// req.user comes from user.controller userByAddress
+const hasAuthorization = (req, res, next) => {
+  const authorized =
+    req.user && req.auth && req.user.address == req.auth.address;
+  if (!authorized) {
+    return res.status(403).json({
+      error: "User is not authorized",
+    });
+  }
+  next();
+};
+
+const requireAdmin = async (req, res, next) => {
+  const user = await User.findOne({ address: req.auth.address });
+  if (!user) return res.status(403).json({ error: "User is not authorized" });
+  if (user.role !== "admin")
+    return res.status(403).json({ error: "User is not authorized" });
+  next();
+};
+
+export default {
+  signin,
+  signout,
+  requireSignin,
+  hasAuthorization,
+  requireAdmin,
+};
