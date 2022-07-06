@@ -23,7 +23,7 @@ app.use(cors());
 app.use((req, res, next) => {
   if (config.env !== "production") {
     req.web3Provider = new ethers.providers.JsonRpcProvider(
-      "http://localhost:7545"
+      "http://localhost:8545"
     );
   } else {
     req.web3Provider = new ethers.providers.AlchemyProvider("");

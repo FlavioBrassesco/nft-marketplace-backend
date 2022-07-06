@@ -5,12 +5,12 @@ import authController from "../controllers/auth.controller";
 const router = express.Router();
 
 router
-  .use("/user/")
+  .route("/user/")
   .get(userController.list)
   .post(userController.create);
 
 router
-  .use("/user/:address")
+  .route("/user/:address")
   .get(userController.read)
   .put(
     authController.requireSignin,

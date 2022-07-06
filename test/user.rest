@@ -1,0 +1,3 @@
+GET http://localhost:8000/api/user
+###
+GET http://localhost:8000/api/user/0x892b84be7a612dE75dA112Ad3397960772f58F25

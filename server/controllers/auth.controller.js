@@ -1,6 +1,7 @@
 import User from "../models/user.model";
 import jwt from "jsonwebtoken";
 import { expressjwt } from "express-jwt";
+import config from "../../config/config";
 
 const signin = async (req, res) => {
   try {
@@ -11,7 +12,7 @@ const signin = async (req, res) => {
         .status(401)
         .json({ error: "Signature and address don't match" });
 
-    const token = jwt.sign({ address: user.address }, config.jwtSecret);
+    const token = jwt.sign({ address: req.body.address }, config.jwtSecret);
 
     res.cookie("t", token, { expire: new Date() + 9999 });
 
@@ -39,7 +40,10 @@ const requireSignin = expressjwt({
 });
 
 // req.user comes from user.controller userByAddress
-const hasAuthorization = (req, res, next) => {
+const hasAuthorization = async (req, res, next) => {
+  const auth = await User.findOne({ address: req.auth.address });
+  if (auth.role === "admin") return next();
+  
   const authorized =
     req.user && req.auth && req.user.address == req.auth.address;
   if (!authorized) {

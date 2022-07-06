@@ -4,7 +4,10 @@ import { ethers } from "ethers";
 const UserSchema = mongoose.Schema({
   username: {
     type: String,
-    unique: true,
+    index: {
+      unique: true,
+      partialFilterExpression: { username: { $type: "string" } },
+    },
     trim: true,
     validate: {
       validator: (v) =>
@@ -39,7 +42,7 @@ UserSchema.set("toJSON", {
 });
 
 UserSchema.methods = {
-  authenticate: (message, signature) => {
+  authenticate: function (message, signature) {
     return this.address === ethers.utils.verifyMessage(message, signature);
   },
 };
