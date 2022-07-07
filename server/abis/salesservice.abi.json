@@ -1,0 +1,7 @@
+{
+  "abi": [
+    "function getApprovedTokens() external view returns (address[])",
+    "function getPendingRevenue(address) external view returns(uint256 revenue)",
+    "function getAuthorizedMarketplaces() external view returns(address[])"
+  ]
+}

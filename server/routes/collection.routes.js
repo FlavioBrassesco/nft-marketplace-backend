@@ -1,18 +1,10 @@
 import express from "express";
 import { ethers } from "ethers";
 import CoreContract from "../models/core-contract.model";
-
 import collectionController from "../controllers/collection.controller";
+import { abi as managerAbi } from "../abis/manager.abi.json";
 
 const router = express.Router();
-
-const managerAbi = [
-  "function isWhitelistedCollection(address) public view returns (bool)",
-  "function getFee(address) public view returns (uint256)",
-  "function getFloorPrice(address) public view returns (uint256)",
-  "function getCollectionsCount() public view returns (uint256)",
-  "function collectionByIndex(uint256) public view returns (address)",
-];
 
 // collection manager middleware
 router.use(async (req, res, next) => {

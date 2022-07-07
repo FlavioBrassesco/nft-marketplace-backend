@@ -1,0 +1,8 @@
+{
+  "abi": [
+    "function offerOfUserByIndex(address,address,uint256) public view returns (uint256,uint256)",
+    "function getUserOffersCount(address,address) public view returns (uint256)",
+    "function offerByIndex(address,uint256,uint256) public view returns (address,uint256)",
+    "function getAllOffersCount(address,uint256) public view returns (uint256)"
+  ]
+}

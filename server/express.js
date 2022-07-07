@@ -11,6 +11,7 @@ import userRoutes from "./routes/user.routes";
 import authRoutes from "./routes/auth.routes";
 import salesServiceRoutes from "./routes/sales-service.routes";
 import collectionRoutes from "./routes/collection.routes";
+import marketplaceRoutes from "./routes/marketplace.routes";
 
 // express config
 const app = express();
@@ -42,5 +43,6 @@ app.use("/api/", coreContractRoutes);
 app.use("/api/", userRoutes);
 app.use("/api/", salesServiceRoutes);
 app.use("/api/", collectionRoutes);
+app.use("/api/", marketplaceRoutes);
 
 export default app;

@@ -1,0 +1,9 @@
+{
+  "abi": [
+    "function itemOfUserByIndex(address,address,uint256) public view returns (address,address,uint256,uint256,address,uint256)",
+    "function getUserItemsCount(address,address) public view returns (uint256)",
+    "function itemByIndex(address,uint256) public view returns (address,address,uint256,uint256,address,uint256)",
+    "function getAllItemsCount(address) public view returns (uint256)",
+    "function items(address,uint256) public view returns (address,address,uint256,uint256)"
+  ]
+}

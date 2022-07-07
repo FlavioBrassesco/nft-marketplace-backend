@@ -1,18 +1,5 @@
 import { ethers } from "ethers";
-import CoreContract from "../models/core-contract.model";
-
-// IERC721Enumerable + IERC721Metadata
-const erc721Abi = [
-  "function name() public view returns (string)",
-  "function symbol() public view returns (string)",
-  "function contractURI() public view returns (string)",
-  "function totalSupply() public view returns (uint256)",
-  "function tokenByIndex(uint256) public view returns (uint256)",
-  "function balanceOf(address) public view returns (uint256)",
-  "function tokenOfOwnerByIndex(address,uint256) public view returns (uint256)",
-  "function tokenURI(uint256) public view returns (string)",
-  "function ownerOf(uint256) public view returns (address)",
-];
+import { abi as erc721Abi } from "../abis/erc721.abi.json";
 
 const getCollectionData = async (manager, collection) => {
   const output = {
