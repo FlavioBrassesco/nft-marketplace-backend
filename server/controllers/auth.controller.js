@@ -4,25 +4,21 @@ import { expressjwt } from "express-jwt";
 import config from "../../config/config";
 
 const signin = async (req, res) => {
-  try {
-    const user = await User.findOne({ address: req.body.address });
-    if (!user) return res.status(401).json({ error: "User not found" });
-    if (!user.authenticate(req.body.message, req.body.signature))
-      return res
-        .status(401)
-        .json({ error: "Signature and address don't match" });
+  const user = await User.findOne({ address: req.body.address });
 
-    const token = jwt.sign({ address: req.body.address }, config.jwtSecret);
+  if (!user) return res.status(401).json({ error: "user not found" });
 
-    res.cookie("t", token, { expire: new Date() + 9999 });
+  if (!user.authenticate(req.body.message, req.body.signature))
+    return res.status(401).json({ error: "signature and address don't match" });
 
-    res.status(200).json({
-      token,
-      user,
-    });
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
+  const token = jwt.sign({ address: req.body.address }, config.jwtSecret);
+
+  res.cookie("t", token, { expire: new Date() + 9999 });
+
+  res.status(200).json({
+    token,
+    user,
+  });
 };
 
 const signout = (req, res) => {
@@ -43,7 +39,7 @@ const requireSignin = expressjwt({
 const hasAuthorization = async (req, res, next) => {
   const auth = await User.findOne({ address: req.auth.address });
   if (auth.role === "admin") return next();
-  
+
   const authorized =
     req.user && req.auth && req.user.address == req.auth.address;
   if (!authorized) {
@@ -51,14 +47,17 @@ const hasAuthorization = async (req, res, next) => {
       error: "User is not authorized",
     });
   }
+
   next();
 };
 
 const requireAdmin = async (req, res, next) => {
   const user = await User.findOne({ address: req.auth.address });
-  if (!user) return res.status(403).json({ error: "User is not authorized" });
+  if (!user) return res.status(403).json({ error: "user not found" });
+
   if (user.role !== "admin")
-    return res.status(403).json({ error: "User is not authorized" });
+    return res.status(403).json({ error: "user is not authorized" });
+    
   next();
 };
 

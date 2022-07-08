@@ -21,56 +21,34 @@ const getCollectionData = async (manager, collection) => {
 };
 
 const list = async (req, res) => {
-  const manager = req.manager;
-  try {
-    const count = (await manager.getCollectionsCount()).toNumber();
+  const count = (await req.manager.getCollectionsCount()).toNumber();
 
-    let output = [];
-    if (count > 0) {
-      const collections = await Promise.all(
-        [...Array(count)].map(async (_, i) => {
-          return await manager.collectionByIndex(i);
-        })
+  const output = await Promise.all(
+    [...Array(count)].map(async (_, i) => {
+      const address = await req.manager.collectionByIndex(i);
+      const collection = new ethers.Contract(
+        address,
+        erc721Abi,
+        req.web3Provider
       );
+      return await getCollectionData(req.manager, collection);
+    })
+  );
 
-      output = await Promise.all(
-        collections.map(async (address) => {
-          const collection = new ethers.Contract(
-            address,
-            erc721Abi,
-            req.web3Provider
-          );
-          return await getCollectionData(manager, collection);
-        })
-      );
-    }
-
-    res.status(200).json(output);
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
+  res.status(200).json(output);
 };
 
 const read = async (req, res) => {
-  const manager = req.manager;
-  const collection = req.collection;
-
-  try {
-    const output = await getCollectionData(manager, collection);
-
-    res.status(200).json(output);
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
+  const output = await getCollectionData(req.manager, req.collection);
+  res.status(200).json(output);
 };
 
 const collectionByAddress = async (req, res, next, address) => {
-  const erc721 = new ethers.Contract(address, erc721Abi, req.web3Provider);
-  req.collection = erc721;
+  req.collection = new ethers.Contract(address, erc721Abi, req.web3Provider);
   next();
 };
 
-const getItemData = async (tokenId, collection) => {
+const getItemData = async (collection, tokenId) => {
   return {
     tokenId: tokenId.toString(),
     tokenURI: await collection.tokenURI(tokenId),
@@ -79,70 +57,42 @@ const getItemData = async (tokenId, collection) => {
   };
 };
 
-const getItemsOfUser = async (userAddress, collection) => {
+const getItemsOfUser = async (collection, userAddress) => {
   const count = (await collection.balanceOf(userAddress)).toNumber();
 
-  let output = [];
-  if (count > 0) {
-    const tokens = await Promise.all(
-      [...Array(count)].map(
-        async (_, i) => await collection.tokenOfOwnerByIndex(userAddress, i)
-      )
-    );
+  const output = await Promise.all(
+    [...Array(count)].map(async (_, i) => {
+      const token = await collection.tokenOfOwnerByIndex(userAddress, i);
+      return await getItemData(collection, token);
+    })
+  );
 
-    output = await Promise.all(
-      tokens.map(async (token) => {
-        return await getItemData(token, collection);
-      })
-    );
-  }
   return output;
 };
 
-const getItems = async (contract) => {
-  const count = (await contract.totalSupply()).toNumber();
+const getItems = async (collection) => {
+  const count = (await collection.totalSupply()).toNumber();
 
-  let output = [];
-  if (count > 0) {
-    const tokens = await Promise.all(
-      [...Array(count)].map(async (_, i) => await contract.tokenByIndex(i))
-    );
+  const output = await Promise.all(
+    [...Array(count)].map(async (_, i) => {
+      const token = await collection.tokenByIndex(i);
+      return await getItemData(collection, token);
+    })
+  );
 
-    output = await Promise.all(
-      tokens.map(async (token) => {
-        return await getItemData(token, contract);
-      })
-    );
-  }
   return output;
 };
 
 const items = async (req, res) => {
-  const erc721 = req.collection;
-
-  try {
-    let output = [];
-    if (req.query?.user) {
-      output = await getItemsOfUser(req.query.user, erc721);
-      return res.status(200).json(output);
-    }
-    output = await getItems(erc721);
-    return res.status(200).json(output);
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
+  const output = req.query.user
+    ? await getItemsOfUser(req.collection, req.query.user)
+    : await getItems(req.collection);
+  return res.status(200).json(output);
 };
 
 const item = async (req, res) => {
-  const erc721 = req.collection;
-  const tokenId = req.params.itemId;
-
-  try {
-    const output = await getItemData(tokenId, erc721);
-    res.status(200).json(output);
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
+  const output = await getItemData(req.collection, req.tokenId);
+  res.status(200).json(output);
 };
 
 export default { list, read, items, item, collectionByAddress };
