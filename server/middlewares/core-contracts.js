@@ -11,12 +11,11 @@ const manager = async (req, res, next) => {
       .status(400)
       .json({ error: "Couldn't find collection manager contract" });
 
-  const contract = new ethers.Contract(
+  req.manager = new ethers.Contract(
     manager.address,
     managerAbi,
     req.web3Provider
   );
-  req.manager = contract;
   next();
 };
 
@@ -68,12 +67,11 @@ const salesservice = async (req, res, next) => {
       .status(400)
       .json({ error: "Couldn't find sales service contract" });
 
-  const contract = new ethers.Contract(
+  req.salesservice = new ethers.Contract(
     salesservice.address,
     salesServiceAbi,
     req.web3Provider
   );
-  req.salesservice = contract;
   next();
 };
 

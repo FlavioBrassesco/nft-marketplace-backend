@@ -5,9 +5,6 @@ import mongoose from "mongoose";
 // db connection
 mongoose.connect(config.mongoUri);
 
-// server start admin check
-
-
 app.listen(config.port, (err) => {
   if (err) console.log(err);
   console.info(`Server started on port ${config.port}`);
