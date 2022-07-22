@@ -1,4 +1,5 @@
 import config from "../../config/config";
+import { ethers } from "ethers";
 
 const ethersProvider = (req, res, next) => {
   if (config.env !== "production") {

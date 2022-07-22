@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
 const list = async (req, res) => {
-  const marketplaces = await req.salesservice.getAuthorizedMarketplaces();
+  const marketplaces = await req.contracts.salesservice.getAuthorizedMarketplaces();
 
   const output = await Promise.all(
     marketplaces.map(async (marketplace) => {

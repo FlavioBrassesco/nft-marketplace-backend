@@ -57,11 +57,11 @@ const getUserCollectionOffers = async (userAddress, collection, buyoffers) => {
 };
 
 const list = async (req, res) => {
-  const count = (await req.manager.getCollectionsCount()).toNumber();
+  const count = (await req.contracts.manager.getCollectionsCount()).toNumber();
 
   const output = await Promise.all(
     [...Array(count)].map(async (_, i) => {
-      const collection = req.manager.collectionByIndex(i);
+      const collection = req.contracts.manager.collectionByIndex(i);
 
       const erc721 = new ethers.Contract(
         collection,
@@ -73,10 +73,10 @@ const list = async (req, res) => {
         return await getUserCollectionOffers(
           req.query.user,
           erc721,
-          req.buyoffers
+          req.contracts.buyoffers
         );
 
-      return await getCollectionOffers(erc721, req.buyoffers);
+      return await getCollectionOffers(erc721, req.contracts.buyoffers);
     })
   );
 
@@ -91,8 +91,8 @@ const read = async (req, res) => {
   );
 
   const output = req.query.user
-    ? await getUserCollectionOffers(req.query.user, collection, req.buyoffers)
-    : await getCollectionOffers(collection, req.buyoffers);
+    ? await getUserCollectionOffers(req.query.user, collection, req.contracts.buyoffers)
+    : await getCollectionOffers(collection, req.contracts.buyoffers);
 
   res.status(200).json(output);
 };
@@ -120,12 +120,12 @@ const items = async (req, res) => {
   const offers = await getTokenOffers(
     req.params.collectionAddress,
     req.params.tokenId,
-    req.buyoffers
+    req.contracts.buyoffers
   );
 
   res.status(200).json({
     collection: req.params.collectionAddress,
-    tokens: [{ tokenId: req.params.tokenId, offers: offers }],
+    tokens: [{ tokenId: req.params.tokenId, offers }],
   });
 };
 

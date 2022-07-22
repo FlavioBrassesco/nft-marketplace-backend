@@ -41,7 +41,7 @@ const hasAuthorization = async (req, res, next) => {
   if (auth.role === "admin") return next();
 
   const authorized =
-    req.user && req.auth && req.user.address == req.auth.address;
+    req.user && req.auth && req.user.address === req.auth.address;
   if (!authorized) {
     return res.status(403).json({
       error: "User is not authorized",

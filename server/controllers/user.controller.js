@@ -22,7 +22,7 @@ const create = async (req, res) => {
 };
 
 const userByAddress = async (req, res, next, address) => {
-  const user = await User.findOne({ address: address });
+  const user = await User.findOne({ address });
   if (!user) return res.status(404).json({ error: "User not found" });
   req.user = user;
   next();

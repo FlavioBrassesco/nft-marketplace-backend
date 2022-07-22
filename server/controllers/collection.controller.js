@@ -21,17 +21,17 @@ const getCollectionData = async (manager, collection) => {
 };
 
 const list = async (req, res) => {
-  const count = (await req.manager.getCollectionsCount()).toNumber();
+  const count = (await req.contracts.manager.getCollectionsCount()).toNumber();
 
   const output = await Promise.all(
     [...Array(count)].map(async (_, i) => {
-      const address = await req.manager.collectionByIndex(i);
+      const address = await req.contracts.manager.collectionByIndex(i);
       const collection = new ethers.Contract(
         address,
         erc721Abi,
         req.web3Provider
       );
-      return await getCollectionData(req.manager, collection);
+      return await getCollectionData(req.contracts.manager, collection);
     })
   );
 
@@ -39,12 +39,18 @@ const list = async (req, res) => {
 };
 
 const read = async (req, res) => {
-  const output = await getCollectionData(req.manager, req.collection);
+  const output = await getCollectionData(
+    req.contracts.manager,
+    req.contracts.collection
+  );
   res.status(200).json(output);
 };
 
 const collectionByAddress = async (req, res, next, address) => {
-  req.collection = new ethers.Contract(address, erc721Abi, req.web3Provider);
+  req.contracts = {
+    ...req.contracts,
+    collection: new ethers.Contract(address, erc721Abi, req.web3Provider),
+  };
   next();
 };
 
@@ -85,13 +91,13 @@ const getItems = async (collection) => {
 
 const items = async (req, res) => {
   const output = req.query.user
-    ? await getItemsOfUser(req.collection, req.query.user)
-    : await getItems(req.collection);
+    ? await getItemsOfUser(req.contracts.collection, req.query.user)
+    : await getItems(req.contracts.collection);
   return res.status(200).json(output);
 };
 
 const item = async (req, res) => {
-  const output = await getItemData(req.collection, req.tokenId);
+  const output = await getItemData(req.contracts.collection, req.tokenId);
   res.status(200).json(output);
 };
 

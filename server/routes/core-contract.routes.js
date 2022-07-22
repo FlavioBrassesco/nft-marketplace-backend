@@ -1,8 +1,8 @@
 import express from "express";
-const router = express.Router();
-
 import coreContractController from "../controllers/core-contract.controller";
 import authController from "../controllers/auth.controller";
+
+const router = express.Router();
 
 router
   .route("/core-contracts/")

@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import { abi as erc20Abi } from "../../abis/erc20.abi.json";
 
 const list = async (req, res) => {
-  const tokens = await req.salesservice.getApprovedTokens();
+  const tokens = await req.contracts.salesservice.getApprovedTokens();
 
   const output = await Promise.all(
     tokens.map(async (token) => {

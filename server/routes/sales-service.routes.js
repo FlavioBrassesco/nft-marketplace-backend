@@ -5,10 +5,12 @@ import authorizedMarketplaceController from "../controllers/sales-service/author
 import approvedTokenController from "../controllers/sales-service/approved-token.controller";
 import pendingRevenueController from "../controllers/sales-service/pending-revenue.controller";
 import { salesservice } from "../middlewares/core-contracts";
+import checkCache from "../middlewares/check-cache";
 
 const router = express.Router();
 
 router.use("/sales-service", salesservice);
+router.use("/sales-service", checkCache);
 
 router
   .route("/sales-service/authorized-marketplaces")

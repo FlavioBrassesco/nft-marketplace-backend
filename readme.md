@@ -1,7 +1,8 @@
 # TODO
 
 - setup an event based caching mechanism (blockchain event listener + instant record when doing transactions via marketplace)
-- setup a cache middleware for common view requests (redis?)
-- authorized-marketplace model and approved token model are not needed (data should be hardcoded onchain and cached)
+- setup a cache middleware for common view requests
+-- middleware in process. We need to check the contracts from were we are returning the logs.  
+-- need to check we don't return cached unauth responses  
 - Parse JSON from tokenURI and contractURI
 - Paginate blockchain requests

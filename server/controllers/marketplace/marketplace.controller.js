@@ -45,14 +45,14 @@ const getUserItems = async (userAddress, collectionAddress, marketplace) => {
 };
 
 const list = async (req, res) => {
-  const count = (await req.manager.getCollectionsCount()).toNumber();
+  const count = (await req.contracts.manager.getCollectionsCount()).toNumber();
 
   const output = await Promise.all(
     [...Array(count)].map(async (_, i) => {
-      const collection = await req.manager.collectionByIndex(i);
+      const collection = await req.contracts.manager.collectionByIndex(i);
       const items = req.query.user
-        ? await getUserItems(req.query.user, collection, req.marketplace)
-        : await getItems(collection, req.marketplace);
+        ? await getUserItems(req.query.user, collection, req.contracts.marketplace)
+        : await getItems(collection, req.contracts.marketplace);
 
       return { collection, items };
     })
@@ -66,15 +66,15 @@ const items = async (req, res) => {
     ? await getUserItems(
         req.query.user,
         req.params.collectionAddress,
-        req.marketplace
+        req.contracts.marketplace
       )
-    : await getItems(req.params.collectionAddress, req.marketplace);
+    : await getItems(req.params.collectionAddress, req.contracts.marketplace);
 
   return res.status(200).json(items);
 };
 
 const item = async (req, res) => {
-  const items = await req.marketplace.items(
+  const items = await req.contracts.marketplace.items(
     req.params.collectionAddress,
     req.params.tokenId
   );

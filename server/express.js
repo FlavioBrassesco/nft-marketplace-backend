@@ -14,6 +14,7 @@ import marketplaceRoutes from "./routes/marketplace.routes";
 import notFound from "./middlewares/not-found";
 import errorHandler from "./middlewares/error-handler";
 import ethersProvider from "./middlewares/ethers-provider";
+import requestCacher from "./middlewares/request-cacher";
 
 // express config
 const app = express();
@@ -25,6 +26,9 @@ app.use(cors());
 
 // ethers provider middleware
 app.use(ethersProvider);
+// intercepts json responses and saves them into the db
+// requires checkCache middleware in each blockchain route
+app.use(requestCacher);
 
 // routes
 app.get("/", (req, res) => {

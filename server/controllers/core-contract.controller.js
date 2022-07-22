@@ -12,7 +12,7 @@ const create = async (req, res) => {
 };
 
 const contractByKey = async (req, res, next, key) => {
-  const contract = await CoreContract.findOne({ key: key });
+  const contract = await CoreContract.findOne({ key });
   if (!contract) {
     return res.status(404).json({ error: "Contract not found" });
   }

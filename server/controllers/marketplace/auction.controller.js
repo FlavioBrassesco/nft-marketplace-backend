@@ -47,15 +47,15 @@ const getUserItems = async (userAddress, collectionAddress, auctions) => {
 };
 
 const list = async (req, res) => {
-  const count = (await req.manager.getCollectionsCount()).toNumber();
+  const count = (await req.contracts.manager.getCollectionsCount()).toNumber();
 
   const output = await Promise.all(
     [...Array(count)].map(async (_, i) => {
-      const collection = await req.manager.collectionByIndex(i);
+      const collection = await req.contracts.manager.collectionByIndex(i);
 
       const items = req.query.user
-        ? await getUserItems(req.query.user, collection, req.auctions)
-        : await getItems(collection, req.auctions);
+        ? await getUserItems(req.query.user, collection, req.contracts.auctions)
+        : await getItems(collection, req.contracts.auctions);
 
       return { collection, items };
     })
@@ -69,15 +69,15 @@ const items = async (req, res) => {
     ? await getUserItems(
         req.query.user,
         req.params.collectionAddress,
-        req.auctions
+        req.contracts.auctions
       )
-    : await getItems(req.params.collectionAddress, req.auctions);
+    : await getItems(req.params.collectionAddress, req.contracts.auctions);
 
   return res.status(200).json(items);
 };
 
 const item = async (req, res) => {
-  const items = await req.auctions.items(
+  const items = await req.contracts.auctions.items(
     req.params.collectionAddress,
     req.params.tokenId
   );
