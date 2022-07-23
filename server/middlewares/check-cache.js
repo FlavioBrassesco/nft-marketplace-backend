@@ -11,7 +11,6 @@ const getLatestLog = async (contract, provider, blockNumber) => {
   };
 
   const logs = await provider.getLogs(filter);
-  console.log("filter:", filter, "logs:", logs, "check-cache - 14");
   return logs[logs.length - 1];
 };
 
@@ -33,14 +32,12 @@ const checkCache = async (req, res, next) => {
     : (await req.web3Provider.getBlockNumber()) - 5000 || 0;
 
   const log = await getLatestLog(
-    req.contracts.marketplace,
+    req.contracts.manager,
     req.web3Provider,
     bn
   );
-  console.log(log, "check-cache - 39");
 
   if (!cachedResponse) {
-    console.log("!cachedResponse - check-cache - 42", log);
     req.cacheData = {
       shouldCache: true,
       blockNumber:
@@ -53,7 +50,6 @@ const checkCache = async (req, res, next) => {
 
   // if the log is so old we cannot retrieve it (or in the worst case there is no log)
   if (!log?.blockNumber) {
-    console.log("!log?.blockNumber - check-cache - 54", log);
     req.cacheData = {
       shouldCache: true,
       blockNumber: await req.web3Provider.getBlockNumber(),
@@ -81,7 +77,6 @@ const checkCache = async (req, res, next) => {
     return next();
   }
 
-  console.log("returned cached response - check-cache.js - 82");
   return res.status(200).json(JSON.parse(cachedResponse.body));
 };
 

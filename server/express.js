@@ -14,7 +14,7 @@ import marketplaceRoutes from "./routes/marketplace.routes";
 import notFound from "./middlewares/not-found";
 import errorHandler from "./middlewares/error-handler";
 import ethersProvider from "./middlewares/ethers-provider";
-import requestCacher from "./middlewares/request-cacher";
+import cacheMiddleware from "./middlewares/cache-middleware";
 
 // express config
 const app = express();
@@ -24,11 +24,16 @@ app.use(compress());
 app.use(helmet());
 app.use(cors());
 
+
+
 // ethers provider middleware
 app.use(ethersProvider);
+
+// hash map with current active caching operations
+app.set("cacheOps", {});
 // intercepts json responses and saves them into the db
 // requires checkCache middleware in each blockchain route
-app.use(requestCacher);
+app.use(cacheMiddleware);
 
 // routes
 app.get("/", (req, res) => {

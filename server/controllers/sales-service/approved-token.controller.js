@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { abi as erc20Abi } from "../../abis/erc20.abi.json";
+const erc20Abi = require("../../abis/erc20.abi.json");
 
 const list = async (req, res) => {
   const tokens = await req.contracts.salesservice.getApprovedTokens();

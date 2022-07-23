@@ -1,10 +1,10 @@
-import { abi as managerAbi } from "../abis/manager.abi.json";
-import { abi as marketplaceAbi } from "../abis/marketplace.abi.json";
-import { abi as auctionsAbi } from "../abis/auctions.abi.json";
-import { abi as buyoffersAbi } from "../abis/buyoffers.abi.json";
-import { abi as salesServiceAbi } from "../abis/salesservice.abi.json";
 import CoreContract from "../models/core-contract.model";
 import { ethers } from "ethers";
+const managerAbi = require("../abis/manager.abi.json").abi;
+const marketplaceAbi = require("../abis/marketplace.abi.json").abi;
+const auctionsAbi = require("../abis/auctions.abi.json").abi;
+const buyoffersAbi = require("../abis/buyoffers.abi.json").abi;
+const salesServiceAbi = require("../abis/salesservice.abi.json").abi;
 
 const manager = async (req, res, next) => {
   const manager = await CoreContract.findOne({ key: "manager" });
@@ -17,7 +17,7 @@ const manager = async (req, res, next) => {
     ...req.contracts,
     manager: new ethers.Contract(manager.address, managerAbi, req.web3Provider),
   };
-  
+
   next();
 };
 

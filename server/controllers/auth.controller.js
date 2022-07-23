@@ -1,7 +1,7 @@
 import User from "../models/user.model";
 import jwt from "jsonwebtoken";
 import { expressjwt } from "express-jwt";
-import config from "../../config/config";
+import config from "../config/config";
 
 const signin = async (req, res) => {
   const user = await User.findOne({ address: req.body.address });

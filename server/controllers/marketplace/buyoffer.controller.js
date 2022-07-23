@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { abi as erc721Abi } from "../../abis/erc721.abi.json";
+const erc721Abi = require("../../abis/erc721.abi.json");
 
 const getCollectionOffers = async (collection, buyoffers) => {
   const totalSupply = (await collection.totalSupply()).toNumber();

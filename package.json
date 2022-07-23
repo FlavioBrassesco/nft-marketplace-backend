@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec babel-node server/server.js",
+    "dev": "nodemon --exec babel-node server/server.ts --extensions \".ts,.js\"",
+    "babel": "babel server --out-dir rundev --extensions \".ts,.js\" --copy-files",
     "build": "webpack --mode=production --config webpack.config.js",
     "start": "NODE_ENV=production node ./dist/server.generated.js"
   },
@@ -12,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "0.27.2",
     "compression": "1.7.4",
     "cookie-parser": "1.4.6",
     "cors": "2.8.5",
@@ -25,9 +27,11 @@
     "mongoose": "6.4.2"
   },
   "devDependencies": {
+    "@babel/cli": "^7.18.9",
     "@babel/core": "^7.18.6",
     "@babel/node": "^7.18.6",
     "@babel/preset-env": "^7.18.6",
+    "@babel/preset-typescript": "^7.18.6",
     "babel-loader": "^8.2.5",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
@@ -37,6 +41,8 @@
     "eslint-plugin-promise": "^6.0.0",
     "node-fetch": "2.0",
     "nodemon": "^2.0.18",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
     "webpack": "^5.73.0",
     "webpack-cli": "^4.10.0",
     "webpack-node-externals": "^3.0.0"

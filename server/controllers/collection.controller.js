@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { abi as erc721Abi } from "../abis/erc721.abi.json";
+const erc721Abi = require("../abis/erc721.abi.json").abi;
 
 const getCollectionData = async (manager, collection) => {
   const output = {
@@ -9,7 +9,7 @@ const getCollectionData = async (manager, collection) => {
     contractURI: await collection.contractURI(),
     fee: (await manager.getFee(collection.address)).toString(),
     floorPrice: (await manager.getFloorPrice(collection.address)).toString(),
-    whitelisted: await manager.isWhitelistedCollection(collection.address),
+    isWhitelisted: await manager.isWhitelistedCollection(collection.address),
   };
 
   // catch erc721 non-enumerable
