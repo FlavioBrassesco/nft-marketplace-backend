@@ -1,5 +1,7 @@
 # TODO
 
+- corregir locals.users
+
 - setup an event based caching mechanism (blockchain event listener + instant record when doing transactions via marketplace)
 - setup a cache middleware for common view requests
 -- middleware in process. We need to check the contracts from were we are returning the logs.  
