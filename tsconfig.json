@@ -11,5 +11,6 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "noEmit": true
-  }
+  },
+  "files": ["./types/index.d.ts"]
 }

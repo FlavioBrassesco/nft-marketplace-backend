@@ -1,21 +1,28 @@
-import RequestCache from "../models/request-cache";
+/// <reference path="../../types/index.d.ts" />
+import RequestCache, { IRequestCache } from "../models/request-cache";
+import { Request, Response } from "express";
+import { AnyBulkWriteOperation } from "mongodb";
 import axios from "axios";
-import Item from "../models/item.model";
+import Item, { IItem } from "../models/item.model";
 
-const extractItemData = async (item) => {
+const extractItemData = async (item): Promise<IItem> => {
   const { data: metadata } = await axios.get(item.tokenURI);
 
   if (metadata) {
     item = Object.assign(item, { metadata });
   }
+
+  return item;
 };
 
-const itemCacher = async (request, data) => {
+const itemCacher = async (request: Request, data) => {
   if (/^(.*\/){0,1}collections.*\/items.*/.test(request.originalUrl)) {
     if (Array.isArray(data)) {
-      const items = await Promise.all(
+      const items: AnyBulkWriteOperation[] = await Promise.all(
         data.map(async (item) => {
-          const obj = { insertOne: { document: await extractItemData(item) } };
+          const obj = {
+            insertOne: { document: await extractItemData(item) },
+          };
           return obj;
         })
       );
@@ -35,12 +42,12 @@ const itemCacher = async (request, data) => {
   }
 };
 
-const requestCacher = async (request, data) => {
-  const requestCache = {
+const requestCacher = async (request: Request, data) => {
+  const requestCache: IRequestCache = {
     originalUrl: request.originalUrl,
     body: JSON.stringify(data),
-    blockNumber: request.cacheData.blockNumber,
-    transactionHash: request.cacheData.transactionHash,
+    blockNumber: request.locals.cacheData.blockNumber,
+    transactionHash: request.locals.cacheData.transactionHash,
   };
 
   await RequestCache.findOneAndUpdate(
@@ -50,7 +57,7 @@ const requestCacher = async (request, data) => {
   );
 };
 
-const cacheMiddleware = (request, response, next) => {
+const cacheMiddleware = (request: Request, response: Response, next) => {
   const cacheOps = request.app.locals.settings.cacheOps;
   try {
     const responseJson = response.json;
@@ -59,18 +66,21 @@ const cacheMiddleware = (request, response, next) => {
       // and response is not an error
       // and there is not a caching operation running for this request
       if (
-        request.cacheData?.shouldCache &&
+        request.locals.cacheData?.shouldCache &&
         data.error === undefined &&
         !cacheOps[request.originalUrl]
       ) {
         cacheOps[request.originalUrl] = true;
-        Promise.all([requestCacher(), itemCacher()]).then((response) => {
+        Promise.all([
+          requestCacher(request, data),
+          itemCacher(request, data),
+        ]).then((response) => {
           cacheOps[request.originalUrl] = false;
         });
       }
 
       response.json = responseJson;
-      responseJson.call(response, data);
+      return responseJson.call(response, data);
     };
   } catch (error) {
     next(error);

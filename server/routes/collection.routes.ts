@@ -8,9 +8,11 @@ const router = express.Router();
 router.use("/collections", manager);
 router.use("/collections", checkCache);
 
-router.route("/collections").get(collectionController.list);
+router.route("/collections")
+  .get(collectionController.list);
 
-router.route("/collections/:collectionAddress").get(collectionController.read);
+router.route("/collections/:collectionAddress")
+  .get(collectionController.read);
 
 router
   .route("/collections/:collectionAddress/items")
@@ -21,4 +23,5 @@ router
   .get(collectionController.item);
 
 router.param("collectionAddress", collectionController.collectionByAddress);
+
 export default router;

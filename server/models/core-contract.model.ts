@@ -1,7 +1,12 @@
 import mongoose from "mongoose";
 import { ethers } from "ethers";
 
-const CoreContractSchema = mongoose.Schema({
+export interface ICoreContract {
+  key: string;
+  address:string;
+}
+
+const CoreContractSchema:mongoose.Schema<ICoreContract> = new mongoose.Schema({
   key: {
     type: String,
     enum: [
@@ -22,7 +27,7 @@ const CoreContractSchema = mongoose.Schema({
     required: [true, "An address is required"],
     trim: true,
     validate: {
-      validator: (v) => ethers.utils.isAddress(v),
+      validator: (v:string) => ethers.utils.isAddress(v),
       message: (props) => `${props.value} is not a valid address`,
     },
   },

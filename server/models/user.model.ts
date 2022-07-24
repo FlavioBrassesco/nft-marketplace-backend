@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { ethers } from "ethers";
 
-const UserSchema = mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     index: {
@@ -10,7 +10,7 @@ const UserSchema = mongoose.Schema({
     },
     trim: true,
     validate: {
-      validator: (v) =>
+      validator: (v:string) =>
         /^(?=[a-zA-Z0-9._]{8,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/.test(v),
       message: ({ value }) => `${value} is not a valid username`,
     },

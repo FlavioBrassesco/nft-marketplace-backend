@@ -1,6 +1,13 @@
 import mongoose from "mongoose";
 
-const RequestCache = mongoose.Schema({
+export interface IRequestCache {
+  originalUrl: string;
+  body: string;
+  blockNumber: number;
+  transactionHash: string;
+}
+
+const RequestCache: mongoose.Schema<IRequestCache> = new mongoose.Schema({
   originalUrl: {
     type: String,
     required: true,

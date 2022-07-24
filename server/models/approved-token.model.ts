@@ -1,10 +1,15 @@
 import mongoose from "mongoose";
 import { ethers } from "ethers";
 
-const AuthorizedMarketplaceSchema = mongoose.Schema({
+const ApprovedTokenSchema = new mongoose.Schema({
   name: {
     type: String,
-    unique: true,
+  },
+  symbol: {
+    type: String,
+  },
+  decimals: {
+    type: String,
   },
   address: {
     type: String,
@@ -12,13 +17,13 @@ const AuthorizedMarketplaceSchema = mongoose.Schema({
     required: [true, "An address is required"],
     trim: true,
     validate: {
-      validator: (v) => ethers.utils.isAddress(v),
+      validator: (v:string) => ethers.utils.isAddress(v),
       message: (props) => `${props.value} is not a valid address`,
     },
   },
 });
 
-AuthorizedMarketplaceSchema.set("toJSON", {
+ApprovedTokenSchema.set("toJSON", {
   transform: (document, obj) => {
     obj.id = obj._id.toString();
     delete obj._id;
@@ -26,7 +31,4 @@ AuthorizedMarketplaceSchema.set("toJSON", {
   },
 });
 
-export default mongoose.model(
-  "AuthorizedMarketplace",
-  AuthorizedMarketplaceSchema
-);
+export default mongoose.model("ApprovedToken", ApprovedTokenSchema);
