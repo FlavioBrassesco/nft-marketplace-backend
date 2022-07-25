@@ -1,9 +1,0 @@
-{
-  "abi": [
-    "function isWhitelistedCollection(address) public view returns (bool)",
-    "function getFee(address) public view returns (uint256)",
-    "function getFloorPrice(address) public view returns (uint256)",
-    "function getCollectionsCount() public view returns (uint256)",
-    "function collectionByIndex(uint256) public view returns (address)"
-  ]
-}
