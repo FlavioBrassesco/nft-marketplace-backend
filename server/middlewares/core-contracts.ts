@@ -1,11 +1,11 @@
-import { ethers } from "ethers";
+/// <reference path="../../types/index.d.ts" />
 import { Request, Response } from "express";
 import CoreContract from "../models/core-contract.model";
-const managerAbi = require("../abis/manager.abi.json").abi;
-const marketplaceAbi = require("../abis/marketplace.abi.json").abi;
-const auctionsAbi = require("../abis/auctions.abi.json").abi;
-const buyoffersAbi = require("../abis/buyoffers.abi.json").abi;
-const salesServiceAbi = require("../abis/salesservice.abi.json").abi;
+import { NFTCollectionManager__factory } from "../typechain-types/factories/contracts/NFTCollectionManager__factory";
+import { NFTMarketplace__factory } from "../typechain-types/factories/contracts/NFTMarketplace__factory";
+import { NFTAuctions__factory } from "../typechain-types/factories/contracts/NFTAuctions__factory";
+import { NFTBuyOffers__factory } from "../typechain-types/factories/contracts/NFTBuyOffers__factory";
+import { SalesService__factory } from "../typechain-types/factories/contracts/services/SalesService__factory";
 
 const manager = async (req: Request, res: Response, next) => {
   const manager = await CoreContract.findOne({ key: "manager" });
@@ -16,9 +16,8 @@ const manager = async (req: Request, res: Response, next) => {
 
   req.locals.contracts = {
     ...req.locals.contracts,
-    manager: new ethers.Contract(
+    manager: NFTCollectionManager__factory.connect(
       manager.address,
-      managerAbi,
       req.locals.web3Provider
     ),
   };
@@ -35,9 +34,8 @@ const marketplace = async (req: Request, res: Response, next) => {
 
   req.locals.contracts = {
     ...req.locals.contracts,
-    marketplace: new ethers.Contract(
+    marketplace: NFTMarketplace__factory.connect(
       marketplace.address,
-      marketplaceAbi,
       req.locals.web3Provider
     ),
   };
@@ -51,9 +49,8 @@ const auctions = async (req: Request, res: Response, next) => {
 
   req.locals.contracts = {
     ...req.locals.contracts,
-    auctions: new ethers.Contract(
+    auctions: NFTAuctions__factory.connect(
       auctions.address,
-      auctionsAbi,
       req.locals.web3Provider
     ),
   };
@@ -67,9 +64,8 @@ const buyoffers = async (req: Request, res: Response, next) => {
 
   req.locals.contracts = {
     ...req.locals.contracts,
-    buyoffers: new ethers.Contract(
+    buyoffers: NFTBuyOffers__factory.connect(
       buyoffers.address,
-      buyoffersAbi,
       req.locals.web3Provider
     ),
   };
@@ -85,9 +81,8 @@ const salesservice = async (req: Request, res: Response, next) => {
 
   req.locals.contracts = {
     ...req.locals.contracts,
-    salesservice: new ethers.Contract(
+    salesservice: SalesService__factory.connect(
       salesservice.address,
-      salesServiceAbi,
       req.locals.web3Provider
     ),
   };

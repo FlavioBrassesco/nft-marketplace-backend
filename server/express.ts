@@ -24,7 +24,10 @@ app.use(compress());
 app.use(helmet());
 app.use(cors());
 
-
+app.use((req, res, next) => {
+  req.locals = {};
+  next();
+});
 
 // ethers provider middleware
 app.use(ethersProvider);
