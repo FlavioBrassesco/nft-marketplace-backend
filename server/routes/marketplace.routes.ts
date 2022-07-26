@@ -8,14 +8,16 @@ import {
   auctions,
   buyoffers,
 } from "../middlewares/core-contracts";
-import checkCache from "../middlewares/check-cache";
+
+import CacheMiddleware from "../middlewares/cache/CacheMiddleware";
 
 const router = express.Router();
+const cm = CacheMiddleware.getInstance();
 
 router.use("/marketplace", manager);
+router.use("/marketplace", cm.getCheckerMiddleware("requestChecker"));
 
 router.use("/marketplace/for-sale", marketplace);
-router.use("/marketplace/for-sale", checkCache);
 
 router
   .route("/marketplace/for-sale")
@@ -30,7 +32,6 @@ router
   .get(marketplaceController.item);
 
 router.use("/marketplace/auctions", auctions);
-router.use("/marketplace/auctions", checkCache);
 
 router
   .route("/marketplace/auctions")
@@ -45,7 +46,6 @@ router
   .get(auctionController.item);
 
 router.use("/marketplace/buy-offers", buyoffers);
-router.use("/marketplace/buy-offers", checkCache);
 
 router
   .route("/marketplace/buy-offers")

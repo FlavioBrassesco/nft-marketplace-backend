@@ -1,11 +1,10 @@
 /// <reference path="../../../types/index.d.ts" />
 import { Request, Response } from "express";
-import { ethers, BigNumber } from "ethers";
+import { BigNumber } from "ethers";
 import { NFTCollectionManager } from "../../typechain-types/contracts/NFTCollectionManager";
 import { NFTBuyOffers } from "../../typechain-types/contracts/NFTBuyOffers";
 import { MockERC721 } from "../../typechain-types/contracts/mocks/MockERC721/MockERC721";
-
-const erc721Abi = require("../../abis/erc721.abi.json").abi;
+import { MockERC721__factory } from "../../typechain-types/factories/contracts/mocks/MockERC721/MockERC721__factory";
 
 export type BuyOffer = {
   user: string;
@@ -104,12 +103,9 @@ const list = async (req: Request, res: Response) => {
     [...Array(count)].map(async (_, i) => {
       const collectionAddress = await manager.collectionByIndex(i);
 
-      const erc721 = <MockERC721>(
-        new ethers.Contract(
-          collectionAddress,
-          erc721Abi,
-          req.locals.web3Provider
-        )
+      const erc721 = MockERC721__factory.connect(
+        collectionAddress,
+        req.locals.web3Provider
       );
 
       const offers = req.query.user
@@ -138,12 +134,9 @@ const list = async (req: Request, res: Response) => {
 
 const read = async (req: Request, res: Response) => {
   const buyoffers = <NFTBuyOffers>req.locals.contracts.buyoffers;
-  const collection = <MockERC721>(
-    new ethers.Contract(
-      req.params.collectionAddress,
-      erc721Abi,
-      req.locals.web3Provider
-    )
+  const collection = MockERC721__factory.connect(
+    req.params.collectionAddress,
+    req.locals.web3Provider
   );
 
   const output = req.query.user

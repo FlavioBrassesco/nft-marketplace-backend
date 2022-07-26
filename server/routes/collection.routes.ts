@@ -1,12 +1,13 @@
 import express from "express";
 import collectionController from "../controllers/collection.controller";
-import checkCache from "../middlewares/check-cache";
 import { manager } from "../middlewares/core-contracts";
+import CacheMiddleware from "../middlewares/cache/CacheMiddleware";
 
 const router = express.Router();
+const cm = CacheMiddleware.getInstance();
 
 router.use("/collections", manager);
-router.use("/collections", checkCache);
+router.use("/collections", cm.getCheckerMiddleware("requestChecker"));
 
 router.route("/collections")
   .get(collectionController.list);

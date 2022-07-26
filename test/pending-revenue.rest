@@ -1,2 +1,0 @@
-GET http://localhost:8000/api/sales-service/pending-revenue/0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyZXNzIjoiMHg3MDk5Nzk3MEM1MTgxMmRjM0EwMTBDN2QwMWI1MGUwZDE3ZGM3OUM4IiwiaWF0IjoxNjU3MTI0OTgzfQ.5SEmJ5KeXRRnbl52q33Yhwt3dQ2lNev6J8Xxz-REqWc

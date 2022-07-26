@@ -1,9 +1,0 @@
-GET http://localhost:8000/api/marketplace/for-sale
-###
-GET http://localhost:8000/api/marketplace/for-sale/?user=0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-###
-GET http://localhost:8000/api/marketplace/for-sale/0x610178dA211FEF7D417bC0e6FeD39F05609AD788
-###
-GET http://localhost:8000/api/marketplace/for-sale/0x610178dA211FEF7D417bC0e6FeD39F05609AD788/?user=0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-###
-GET http://localhost:8000/api/marketplace/for-sale/0x610178dA211FEF7D417bC0e6FeD39F05609AD788/7

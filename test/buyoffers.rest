@@ -1,9 +1,0 @@
-GET http://localhost:8000/api/marketplace/buy-offers
-###
-GET http://localhost:8000/api/marketplace/buy-offers/?user=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
-###
-GET http://localhost:8000/api/marketplace/buy-offers/0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e
-###
-GET http://localhost:8000/api/marketplace/buy-offers/0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e/?user=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
-###
-GET http://localhost:8000/api/marketplace/buy-offers/0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e/0

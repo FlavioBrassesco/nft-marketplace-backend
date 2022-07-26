@@ -1,9 +1,0 @@
-GET http://localhost:8000/api/collections/
-###
-GET http://localhost:8000/api/collections/0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0
-###
-GET http://localhost:8000/api/collections/0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0/items
-###
-GET http://localhost:8000/api/collections/0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0/items?user=0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6
-###
-GET http://localhost:8000/api/collections/0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0/items/0

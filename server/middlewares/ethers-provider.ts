@@ -1,3 +1,4 @@
+/// <reference path="../../types/index.d.ts" />
 import config from "../config/config";
 import { ethers } from "ethers";
 import { Request, Response } from "express";

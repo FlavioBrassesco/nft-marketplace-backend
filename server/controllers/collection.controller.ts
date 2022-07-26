@@ -1,7 +1,8 @@
-import { ethers, Contract, BigNumber } from "ethers";
+/// <reference path="../../types/index.d.ts" />
+import { Contract, BigNumber } from "ethers";
 import { Request, Response } from "express";
-
-const erc721Abi = require("../abis/erc721.abi.json").abi;
+import { NFTCollectionManager } from "../typechain-types/contracts/NFTCollectionManager";
+import { MockERC721__factory } from "../typechain-types/factories/contracts/mocks/MockERC721/MockERC721__factory";
 
 export type CollectionData = {
   address: string;
@@ -44,16 +45,14 @@ const getCollectionData = async (
 };
 
 const list = async (req: Request, res: Response) => {
-  const count = (
-    await req.locals.contracts.manager.getCollectionsCount()
-  ).toNumber();
+  const manager = <NFTCollectionManager>req.locals.contracts.manager;
+  const count = (await manager.getCollectionsCount()).toNumber();
 
   const output = await Promise.all(
     [...Array(count)].map(async (_, i) => {
-      const address = await req.locals.contracts.manager.collectionByIndex(i);
-      const collection = new ethers.Contract(
+      const address = await manager.collectionByIndex(i);
+      const collection = MockERC721__factory.connect(
         address,
-        erc721Abi,
         req.locals.web3Provider
       );
       return await getCollectionData(req.locals.contracts.manager, collection);
@@ -79,11 +78,7 @@ const collectionByAddress = async (
 ) => {
   req.locals.contracts = {
     ...req.locals.contracts,
-    collection: new ethers.Contract(
-      address,
-      erc721Abi,
-      req.locals.web3Provider
-    ),
+    collection: MockERC721__factory.connect(address, req.locals.web3Provider),
   };
   next();
 };

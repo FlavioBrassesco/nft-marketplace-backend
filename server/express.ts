@@ -1,3 +1,4 @@
+/// <reference path="../types/index.d.ts" />
 import express from "express";
 import "express-async-errors";
 import cookieParser from "cookie-parser";
@@ -14,7 +15,8 @@ import marketplaceRoutes from "./routes/marketplace.routes";
 import notFound from "./middlewares/not-found";
 import errorHandler from "./middlewares/error-handler";
 import ethersProvider from "./middlewares/ethers-provider";
-import cacheMiddleware from "./middlewares/cache-middleware";
+import CacheMiddleware from "./middlewares/cache/CacheMiddleware";
+import { checkRequestCache } from "./middlewares/cache/checkers";
 
 // express config
 const app = express();
@@ -32,11 +34,12 @@ app.use((req, res, next) => {
 // ethers provider middleware
 app.use(ethersProvider);
 
-// hash map with current active caching operations
-app.set("cacheOps", {});
-// intercepts json responses and saves them into the db
-// requires checkCache middleware in each blockchain route
-app.use(cacheMiddleware);
+// intercepts json responses and calls cachers
+// requires registerChecker in each route that needs caching
+const cacheMiddleware = CacheMiddleware.getInstance();
+cacheMiddleware.registerApp(app);
+cacheMiddleware.registerChecker("requestChecker", checkRequestCache);
+app.use(cacheMiddleware.getMiddleware());
 
 // routes
 app.get("/", (req, res) => {
