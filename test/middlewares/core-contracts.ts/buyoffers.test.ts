@@ -4,7 +4,7 @@ import { buyoffers } from "../../../server/middlewares/core-contracts";
 import CoreContract from "../../../server/models/core-contract.model";
 import { NFTBuyOffers } from "../../../server/typechain-types/contracts/NFTBuyOffers";
 import { NFTBuyOffers__factory } from "../../../server/typechain-types/factories/contracts/NFTBuyOffers__factory";
-import { MongooseFilter } from "../../types/MongooseFilter";
+import { MongooseFindOneFilter } from "../../types/mongoose-filters";
 
 describe("NFTBuyOffers middleware", () => {
   const connect = (a: string, p: Signer | providers.Provider) =>
@@ -25,7 +25,7 @@ describe("NFTBuyOffers middleware", () => {
 
     const filter = ((filter) => {
       return Promise.resolve(null);
-    }) as unknown as MongooseFilter;
+    }) as unknown as MongooseFindOneFilter;
     jest.spyOn(CoreContract, "findOne").mockImplementation(filter);
 
     await buyoffers(request, response, () => true);
@@ -47,7 +47,7 @@ describe("NFTBuyOffers middleware", () => {
 
     const filter = ((filter) => {
       return Promise.resolve({ address: "fakeaddress" });
-    }) as unknown as MongooseFilter;
+    }) as unknown as MongooseFindOneFilter;
     jest.spyOn(CoreContract, "findOne").mockImplementation(filter);
 
     await buyoffers(request, response, () => true);

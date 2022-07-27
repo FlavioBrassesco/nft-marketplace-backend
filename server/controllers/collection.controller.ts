@@ -1,7 +1,8 @@
 /// <reference path="../../types/index.d.ts" />
-import { Contract, BigNumber } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import { Request, Response } from "express";
 import { NFTCollectionManager } from "../typechain-types/contracts/NFTCollectionManager";
+import { MockERC721 } from "../typechain-types/contracts/mocks/MockERC721/MockERC721";
 import { MockERC721__factory } from "../typechain-types/factories/contracts/mocks/MockERC721/MockERC721__factory";
 
 export type CollectionData = {
@@ -16,15 +17,15 @@ export type CollectionData = {
 };
 
 export type ItemData = {
-  tokenId: string;
+  tokenId: BigNumber;
   tokenURI: string;
   collectionAddress: string;
   owner: string;
 };
 
 const getCollectionData = async (
-  manager: Contract,
-  collection: Contract
+  manager: NFTCollectionManager,
+  collection: MockERC721
 ): Promise<CollectionData> => {
   const output: CollectionData = {
     address: collection.address,
@@ -55,7 +56,7 @@ const list = async (req: Request, res: Response) => {
         address,
         req.locals.web3Provider
       );
-      return await getCollectionData(req.locals.contracts.manager, collection);
+      return await getCollectionData(manager, collection);
     })
   );
 
@@ -63,10 +64,9 @@ const list = async (req: Request, res: Response) => {
 };
 
 const read = async (req: Request, res: Response) => {
-  const output = await getCollectionData(
-    req.locals.contracts.manager,
-    req.locals.contracts.collection
-  );
+  const manager = <NFTCollectionManager>req.locals.contracts.manager;
+  const collection = <MockERC721>req.locals.contracts.collection;
+  const output = await getCollectionData(manager, collection);
   res.status(200).json(output);
 };
 
@@ -84,8 +84,8 @@ const collectionByAddress = async (
 };
 
 const getItemData = async (
-  collection: Contract,
-  tokenId: string
+  collection: MockERC721,
+  tokenId: BigNumber
 ): Promise<ItemData> => {
   return {
     tokenId: tokenId,
@@ -96,7 +96,7 @@ const getItemData = async (
 };
 
 const getItemsOfUser = async (
-  collection: Contract,
+  collection: MockERC721,
   userAddress: string
 ): Promise<ItemData[]> => {
   const count = (await collection.balanceOf(userAddress)).toNumber();
@@ -111,7 +111,7 @@ const getItemsOfUser = async (
   return output;
 };
 
-const getItems = async (collection: Contract): Promise<ItemData[]> => {
+const getItems = async (collection: MockERC721): Promise<ItemData[]> => {
   const count = (await collection.totalSupply()).toNumber();
 
   const output = await Promise.all(
@@ -125,19 +125,19 @@ const getItems = async (collection: Contract): Promise<ItemData[]> => {
 };
 
 const items = async (req: Request, res: Response) => {
+  const collection = <MockERC721>req.locals.contracts.collection;
   const output = req.query.user
-    ? await getItemsOfUser(
-        req.locals.contracts.collection,
-        <string>req.query.user
-      )
-    : await getItems(req.locals.contracts.collection);
+    ? await getItemsOfUser(collection, <string>req.query.user)
+    : await getItems(collection);
   return res.status(200).json(output);
 };
 
 const item = async (req: Request, res: Response) => {
+  const collection = <MockERC721>req.locals.contracts.collection;
+
   const output = await getItemData(
-    req.locals.contracts.collection,
-    <string>req.query.tokenId
+    collection,
+    ethers.BigNumber.from(req.query.tokenId)
   );
   res.status(200).json(output);
 };

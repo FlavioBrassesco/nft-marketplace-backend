@@ -4,7 +4,7 @@ import { manager } from "../../../server/middlewares/core-contracts";
 import CoreContract from "../../../server/models/core-contract.model";
 import { NFTCollectionManager } from "../../../server/typechain-types/contracts/NFTCollectionManager";
 import { NFTCollectionManager__factory } from "../../../server/typechain-types/factories/contracts/NFTCollectionManager__factory";
-import { MongooseFilter } from "../../types/MongooseFilter";
+import { MongooseFindOneFilter } from "../../types/mongoose-filters";
 
 describe("NFTCollectionManager middleware", () => {
   const connect = (a: string, p: Signer | providers.Provider) =>
@@ -27,7 +27,7 @@ describe("NFTCollectionManager middleware", () => {
 
     const filter = ((filter) => {
       return Promise.resolve(null);
-    }) as unknown as MongooseFilter;
+    }) as unknown as MongooseFindOneFilter;
     jest.spyOn(CoreContract, "findOne").mockImplementation(filter);
 
     await manager(request, response, () => true);
@@ -49,7 +49,7 @@ describe("NFTCollectionManager middleware", () => {
 
     const filter = ((filter) => {
       return Promise.resolve({ address: "fakeaddress" });
-    }) as unknown as MongooseFilter;
+    }) as unknown as MongooseFindOneFilter;
     jest.spyOn(CoreContract, "findOne").mockImplementation(filter);
 
     await manager(request, response, () => true);

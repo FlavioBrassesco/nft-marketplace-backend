@@ -3,7 +3,9 @@ import {
   ICoreContract,
 } from "../../server/models/core-contract.model";
 
-export type MongooseFilter = (
+export type MongooseFindOneFilter = (
   filter?: FilterQuery<ICoreContract> | undefined,
   callback?: Callback<unknown> | undefined
 ) => Query<unknown, unknown>;
+
+export type MongooseFindFilter = (callback?:Callback<unknown[]>| undefined) => Query<unknown[],unknown>;

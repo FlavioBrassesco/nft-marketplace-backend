@@ -4,7 +4,7 @@ import { salesservice } from "../../../server/middlewares/core-contracts";
 import CoreContract from "../../../server/models/core-contract.model";
 import { SalesService } from "../../../server/typechain-types/contracts/services/SalesService";
 import { SalesService__factory } from "../../../server/typechain-types/factories/contracts/services/SalesService__factory";
-import { MongooseFilter } from "../../types/MongooseFilter";
+import { MongooseFindOneFilter } from "../../types/mongoose-filters";
 
 describe("SalesService middleware", () => {
   const connect = (a: string, p: Signer | providers.Provider) =>
@@ -25,7 +25,7 @@ describe("SalesService middleware", () => {
 
     const filter = ((filter) => {
       return Promise.resolve(null);
-    }) as unknown as MongooseFilter;
+    }) as unknown as MongooseFindOneFilter;
     jest.spyOn(CoreContract, "findOne").mockImplementation(filter);
 
     await salesservice(request, response, () => true);
@@ -47,7 +47,7 @@ describe("SalesService middleware", () => {
 
     const filter = ((filter) => {
       return Promise.resolve({ address: "fakeaddress" });
-    }) as unknown as MongooseFilter;
+    }) as unknown as MongooseFindOneFilter;
     jest.spyOn(CoreContract, "findOne").mockImplementation(filter);
 
     await salesservice(request, response, () => true);

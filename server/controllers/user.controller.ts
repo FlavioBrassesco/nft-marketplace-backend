@@ -1,3 +1,4 @@
+/// <reference path="../../types/index.d.ts" />
 import { ethers } from "ethers";
 import { Request, Response } from "express";
 import User from "../models/user.model";
@@ -9,12 +10,14 @@ const list = async (req: Request, res: Response) => {
 
 const create = async (req: Request, res: Response) => {
   if (
-    !ethers.utils.verifyMessage(req.body.message, req.body.signature) ===
+    ethers.utils.verifyMessage(req.body.message, req.body.signature) !==
     req.body.address
-  )
+  ) {
+    console.log("hey");
     return res
       .status(400)
       .json({ error: "message signer doesn't equal provided address" });
+  }
 
   const user = new User({ address: req.body.address, role: "user" });
   await user.save();

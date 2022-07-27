@@ -4,7 +4,7 @@ import { auctions } from "../../../server/middlewares/core-contracts";
 import CoreContract from "../../../server/models/core-contract.model";
 import { NFTAuctions } from "../../../server/typechain-types/contracts/NFTAuctions";
 import { NFTAuctions__factory } from "../../../server/typechain-types/factories/contracts/NFTAuctions__factory";
-import { MongooseFilter } from "../../types/MongooseFilter";
+import { MongooseFindOneFilter } from "../../types/mongoose-filters";
 
 describe("NFTAuctions middleware", () => {
   const connect = (a: string, p: Signer | providers.Provider) =>
@@ -25,7 +25,7 @@ describe("NFTAuctions middleware", () => {
 
     const filter = ((filter) => {
       return Promise.resolve(null);
-    }) as unknown as MongooseFilter;
+    }) as unknown as MongooseFindOneFilter;
     jest.spyOn(CoreContract, "findOne").mockImplementation(filter);
 
     await auctions(request, response, () => true);
@@ -47,7 +47,7 @@ describe("NFTAuctions middleware", () => {
 
     const filter = ((filter) => {
       return Promise.resolve({ address: "fakeaddress" });
-    }) as unknown as MongooseFilter;
+    }) as unknown as MongooseFindOneFilter;
     jest.spyOn(CoreContract, "findOne").mockImplementation(filter);
 
     await auctions(request, response, () => true);

@@ -4,3 +4,4 @@ admin-user-create.js
 dist
 rundev
 requests
+coverage
