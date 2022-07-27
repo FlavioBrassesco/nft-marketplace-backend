@@ -19,8 +19,15 @@ const getItems = async (
     await marketplace.getAllItemsCount(collectionAddress)
   ).toNumber();
 
+  console.log("COUNT----", count);
+  console.log("marketplace----", marketplace);
+
   const output = await Promise.all(
     [...Array(count)].map(async (_, i) => {
+      console.log(
+        "itemByIndex----",
+        marketplace.itemByIndex(collectionAddress, i)
+      );
       const {
         seller,
         price,
@@ -92,6 +99,7 @@ const list = async (req: Request, res: Response) => {
           )
         : await getItems(collectionAddress, marketplace);
 
+      collections.push(collectionAddress);
       itemsByCollection = { ...itemsByCollection, [collectionAddress]: items };
     })
   );

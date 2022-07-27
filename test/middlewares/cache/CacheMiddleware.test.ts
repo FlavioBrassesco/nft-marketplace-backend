@@ -3,6 +3,8 @@ import CacheMiddleware, {
   Checker,
 } from "../../../server/middlewares/cache/CacheMiddleware";
 import express from "express";
+import MockExpressRequest from "mock-express-request";
+import MockExpressResponse from "mock-express-response";
 
 describe("CacheMiddleware", () => {
   let fakeExpress;
@@ -37,7 +39,7 @@ describe("CacheMiddleware", () => {
   });
 
   it("Should not cache data", () => {
-    const request = {
+    const request = new MockExpressRequest({
       originalUrl: url,
       app: {
         locals: {
@@ -55,19 +57,13 @@ describe("CacheMiddleware", () => {
           shouldCache: true,
         },
       },
-    };
-
-    const response = {
-      status(number) {
-        console.log("status:", number);
-        return this;
-      },
-      json: (data) => console.log("Control returned", data),
-    };
+    });
+    const response = new MockExpressResponse();
 
     const cm = CacheMiddleware.getInstance();
     cm.registerCacher(fakeCacher);
     const middleware = cm.getMiddleware();
+
     middleware(request, response, () => true);
 
     response.json(fakeData);
@@ -76,7 +72,7 @@ describe("CacheMiddleware", () => {
   });
 
   it("Should cache data", () => {
-    const request = {
+    const request = new MockExpressRequest({
       originalUrl: url,
       app: {
         locals: {
@@ -92,19 +88,13 @@ describe("CacheMiddleware", () => {
           shouldCache: true,
         },
       },
-    };
-
-    const response = {
-      status(number) {
-        console.log("status:", number);
-        return this;
-      },
-      json: (data) => console.log("Control returned", data),
-    };
+    });
+    const response = new MockExpressResponse();
 
     const cm = CacheMiddleware.getInstance();
     cm.registerCacher(fakeCacher);
     const middleware = cm.getMiddleware();
+
     middleware(request, response, () => true);
 
     response.json(fakeData);
@@ -117,8 +107,8 @@ describe("CacheMiddleware", () => {
     });
   });
 
-  it("Should prepare cache", () => {
-    const request = {
+  it("Should prepare cache", async () => {
+    const request = new MockExpressRequest({
       method: "GET",
       route: {
         path: url,
@@ -126,15 +116,8 @@ describe("CacheMiddleware", () => {
       locals: {
         cacheData: {},
       },
-    };
-
-    const response = {
-      status(number) {
-        console.log("status:", number);
-        return this;
-      },
-      json: (data) => console.log("Control returned", data),
-    };
+    });
+    const response = new MockExpressResponse();
 
     const fakeChecker: Checker = (request) => {
       return {
@@ -142,21 +125,20 @@ describe("CacheMiddleware", () => {
         body: "fake body",
       };
     };
-
     const cm = CacheMiddleware.getInstance();
     cm.registerChecker("fakeChecker", fakeChecker);
     const checker = cm.getCheckerMiddleware("fakeChecker");
 
-    checker(request, response, () => true).then(() => {
-      expect(request.locals.cacheData).toEqual({
-        shouldCache: true,
-        body: "fake body",
-      });
+    await checker(request, response, () => true);
+
+    expect(request.locals.cacheData).toEqual({
+      shouldCache: true,
+      body: "fake body",
     });
   });
 
   it("Should retrieve cached data", async () => {
-    const request = {
+    const request = new MockExpressRequest({
       method: "GET",
       locals: {
         cacheData: {},
@@ -164,15 +146,8 @@ describe("CacheMiddleware", () => {
       route: {
         path: url,
       },
-    };
-
-    const response = {
-      status(number) {
-        console.log("status:", number);
-        return this;
-      },
-      json: (data) => console.log("Control returned", data),
-    };
+    });
+    const response = new MockExpressResponse();
 
     const fakeChecker: Checker = (request) => {
       return {
@@ -180,20 +155,18 @@ describe("CacheMiddleware", () => {
         body: JSON.stringify({ message: "fake cached body" }),
       };
     };
-
     const cm = CacheMiddleware.getInstance();
     cm.registerChecker("fakeChecker", fakeChecker);
     const checker = cm.getCheckerMiddleware("fakeChecker");
 
-    let intercepted;
-    response.json = (data) => (intercepted = data);
     await checker(request, response, () => true);
     expect(request.locals.cacheData).toEqual({});
-    expect(intercepted).toEqual({ message: "fake cached body" });
+
+    expect(response._getJSON()).toEqual({ message: "fake cached body" });
   });
 
   it("Should not check on unregistered route", async () => {
-    const request = {
+    const request = new MockExpressRequest({
       method: "GET",
       locals: {
         cacheData: {},
@@ -201,15 +174,8 @@ describe("CacheMiddleware", () => {
       route: {
         path: url,
       },
-    };
-
-    const response = {
-      status(number) {
-        console.log("status:", number);
-        return this;
-      },
-      json: (data) => console.log("Control returned", data),
-    };
+    });
+    const response = new MockExpressResponse();
 
     const fakeChecker: Checker = (request) => {
       return {
@@ -217,16 +183,12 @@ describe("CacheMiddleware", () => {
         body: JSON.stringify({ message: "fake cached body" }),
       };
     };
-
     const cm = CacheMiddleware.getInstance();
     cm.registerChecker("otherChecker", fakeChecker);
     const checker = cm.getCheckerMiddleware("fakeChecker");
 
-    let intercepted;
-    response.json = (data) => (intercepted = data);
-
     await checker(request, response, () => true);
-    expect(typeof intercepted).toBe("undefined");
+
     expect(request.locals.cacheData).toEqual({});
   });
 });

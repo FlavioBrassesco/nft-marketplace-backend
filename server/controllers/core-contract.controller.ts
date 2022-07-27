@@ -1,3 +1,4 @@
+/// <reference path="../../types/index.d.ts" />
 import CoreContract from "../models/core-contract.model";
 import { Request, Response } from "express";
 

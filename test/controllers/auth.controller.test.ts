@@ -1,6 +1,6 @@
 import { Request } from "express";
 import MockExpressRequest from "mock-express-request";
-import makeResponse from "../test-helpers/make-response";
+import MockExpressResponse from "mock-express-response";
 import authController from "../../server/controllers/auth.controller";
 import User from "../../server/models/user.model";
 import jwt from "jsonwebtoken";
@@ -19,35 +19,32 @@ jest.mock("ethers", () => {
 
 describe("Auth controller", () => {
   it("signin() --> should respond with status 401 user not found", async () => {
-    const request = {
+    const request = new MockExpressRequest({
       body: {
         address: "0xfakeaddress",
       },
-    } as Request;
-
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
+    });
+    const response = new MockExpressResponse();
 
     mockingoose(User).toReturn(null, "findOne");
+    
     await authController.signin(request, response);
 
-    expect(result[0]).toBe(401);
-    expect(result[1]).toEqual(
+    expect(response.statusCode).toBe(401);
+    expect(response._getJSON()).toEqual(
       expect.objectContaining({
         error: expect.any(String),
       })
     );
   });
 
-  it("signin() --> should respond with status 401 signature and address don't match", async () => {
-    const request = {
+  it("signin() --> should respond with status 401 and error message", async () => {
+    const request = new MockExpressRequest({
       body: {
         address: "0xfakeaddress",
       },
-    } as Request;
-
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
+    });
+    const response = new MockExpressResponse();
 
     const fakeUser = {
       address: request.body.address,
@@ -59,8 +56,8 @@ describe("Auth controller", () => {
 
     await authController.signin(request, response);
 
-    expect(result[0]).toBe(401);
-    expect(result[1]).toEqual(
+    expect(response.statusCode).toBe(401);
+    expect(response._getJSON()).toEqual(
       expect.objectContaining({
         error: expect.any(String),
       })
@@ -68,17 +65,15 @@ describe("Auth controller", () => {
   });
 
   it("signin() --> should set cookie and respond with status 200", async () => {
-    const request = {
+    const request = new MockExpressRequest({
       body: {
         address: "0xfakeaddress",
       },
-    } as Request;
-
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
+    });
 
     const cookie: any = {};
-    // @ts-expect-error
+    
+    const response = new MockExpressResponse();
     response.cookie = jest.fn((n, v, o) => {
       cookie.name = n;
       cookie.value = v;
@@ -99,8 +94,8 @@ describe("Auth controller", () => {
     expect(typeof cookie.value).toBe("string");
     expect(cookie.expires instanceof Date).toBe(true);
 
-    expect(result[0]).toBe(200);
-    expect(result[1]).toEqual(
+    expect(response.statusCode).toBe(200);
+    expect(response._getJSON()).toEqual(
       expect.objectContaining({
         token: cookie.value,
         user: expect.objectContaining({
@@ -111,15 +106,12 @@ describe("Auth controller", () => {
     );
   });
 
-  it("signout() --> should call clearCookie and return 200 with message", async () => {
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
-
+  it("signout() --> should call clearCookie and return 200 with message", async () => {    
     const cookie: any = {
       ["t"]: true,
     };
-
-    // @ts-expect-error
+    
+    const response = new MockExpressResponse();
     response.clearCookie = jest.fn((name) => {
       delete cookie[name];
     });
@@ -127,8 +119,8 @@ describe("Auth controller", () => {
     await authController.signout({} as Request, response);
 
     expect(typeof cookie["t"]).toBe("undefined");
-    expect(result[0]).toBe(200);
-    expect(result[1]).toEqual(
+    expect(response.statusCode).toBe(200);
+    expect(response._getJSON()).toEqual(
       expect.objectContaining({
         message: expect.any(String),
       })
@@ -143,13 +135,12 @@ describe("Auth controller", () => {
         Authorization: `Bearer ${token}`,
       },
     });
+    const response = new MockExpressResponse();
+    const next = jest.fn();
 
-    const mock = jest.fn();
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
-    await authController.requireSignin(request as Request, response, mock);
+    await authController.requireSignin(request, response, next);
     expect(request.auth.address).toBe("0xfakeaddress");
-    expect(mock).toBeCalled();
+    expect(next).toBeCalled();
   });
 
   it("hasAuthorization() --> should respond with 403 and error", async () => {
@@ -157,6 +148,7 @@ describe("Auth controller", () => {
       address: "0xfakeaddress",
       role: "user",
     };
+
     const request = new MockExpressRequest({
       auth: {
         ...user,
@@ -168,17 +160,15 @@ describe("Auth controller", () => {
         },
       },
     });
+    const response = new MockExpressResponse();
+    const next = jest.fn();
 
-    const mock = jest.fn();
-
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
     mockingoose(User).toReturn(user, "findOne");
 
-    await authController.hasAuthorization(request as Request, response, mock);
+    await authController.hasAuthorization(request, response, next);
 
-    expect(result[0]).toBe(403);
-    expect(result[1]).toEqual(
+    expect(response.statusCode).toBe(403);
+    expect(response._getJSON()).toEqual(
       expect.objectContaining({
         error: expect.any(String),
       })
@@ -190,21 +180,20 @@ describe("Auth controller", () => {
       address: "0xfakeaddress",
       role: "admin",
     };
+
     const request = new MockExpressRequest({
       auth: {
         ...user,
       },
     });
+    const response = new MockExpressResponse();
+    const next = jest.fn();
 
-    const mock = jest.fn();
-
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
     mockingoose(User).toReturn(user, "findOne");
 
-    await authController.hasAuthorization(request as Request, response, mock);
+    await authController.hasAuthorization(request, response, next);
 
-    expect(mock).toBeCalled();
+    expect(next).toBeCalled();
   });
 
   it("hasAuthorization() --> should call next if authorized", async () => {
@@ -222,16 +211,14 @@ describe("Auth controller", () => {
         },
       },
     });
+    const response = new MockExpressResponse();
+    const next = jest.fn();
 
-    const mock = jest.fn();
-
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
     mockingoose(User).toReturn(user, "findOne");
 
-    await authController.hasAuthorization(request as Request, response, mock);
+    await authController.hasAuthorization(request, response, next);
 
-    expect(mock).toBeCalled();
+    expect(next).toBeCalled();
   });
 
   it("requireAdmin() --> should return status 403 and error with user not found", async () => {
@@ -239,21 +226,21 @@ describe("Auth controller", () => {
       address: "0xfakeaddress",
       role: "admin",
     };
+
     const request = new MockExpressRequest({
       auth: {
         ...user,
       },
     });
-
-    const mock = jest.fn();
-
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
+    const response = new MockExpressResponse();
+    const next = jest.fn();
 
     mockingoose(User).toReturn(null, "findOne");
-    await authController.requireAdmin(request as Request, response, mock);
-    expect(result[0]).toBe(403);
-    expect(result[1]).toEqual(
+
+    await authController.requireAdmin(request, response, next);
+
+    expect(response.statusCode).toBe(403);
+    expect(response._getJSON()).toEqual(
       expect.objectContaining({
         error: expect.any(String),
       })
@@ -265,21 +252,21 @@ describe("Auth controller", () => {
       address: "0xfakeaddress",
       role: "user",
     };
+
     const request = new MockExpressRequest({
       auth: {
         ...user,
       },
     });
-
-    const mock = jest.fn();
-
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
+    const response = new MockExpressResponse();
+    const next = jest.fn();
 
     mockingoose(User).toReturn(user, "findOne");
-    await authController.requireAdmin(request as Request, response, mock);
-    expect(result[0]).toBe(403);
-    expect(result[1]).toEqual(
+
+    await authController.requireAdmin(request, response, next);
+
+    expect(response.statusCode).toBe(403);
+    expect(response._getJSON()).toEqual(
       expect.objectContaining({
         error: expect.any(String),
       })
@@ -291,19 +278,19 @@ describe("Auth controller", () => {
       address: "0xfakeaddress",
       role: "admin",
     };
+
     const request = new MockExpressRequest({
       auth: {
         ...user,
       },
     });
-
-    const mock = jest.fn();
-
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
+    const response = new MockExpressResponse();
+    const next = jest.fn();
 
     mockingoose(User).toReturn(user, "findOne");
-    await authController.requireAdmin(request as Request, response, mock);
-    expect(mock).toBeCalled();
+
+    await authController.requireAdmin(request, response, next);
+    
+    expect(next).toBeCalled();
   });
 });

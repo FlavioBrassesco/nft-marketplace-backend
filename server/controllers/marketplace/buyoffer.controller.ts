@@ -91,6 +91,7 @@ const getUserCollectionOffers = async (
   };
 };
 
+// this is not needed now, but saved for later in case a user story that needs this arise
 const list = async (req: Request, res: Response) => {
   const manager = <NFTCollectionManager>req.locals.contracts.manager;
   const buyoffers = <NFTBuyOffers>req.locals.contracts.buyoffers;
@@ -189,4 +190,4 @@ const items = async (req: Request, res: Response) => {
   res.status(200).json(offers);
 };
 
-export default { list, read, items };
+export default { read, items };

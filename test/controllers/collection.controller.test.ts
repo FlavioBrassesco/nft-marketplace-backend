@@ -1,11 +1,8 @@
-import { ethers, Contract, BigNumber } from "ethers";
-import { Request, Response } from "express";
-import { NFTCollectionManager } from "../../server/typechain-types/contracts/NFTCollectionManager";
+import { ethers, BigNumber, BigNumberish } from "ethers";
 import { MockERC721__factory } from "../../server/typechain-types/factories/contracts/mocks/MockERC721/MockERC721__factory";
-import * as mockingoose from "mockingoose";
 import MockExpressRequest from "mock-express-request";
+import MockExpressResponse from "mock-express-response";
 import collectionController from "../../server/controllers/collection.controller";
-import makeResponse from "../test-helpers/make-response";
 
 jest.mock(
   "../../server/typechain-types/factories/contracts/mocks/MockERC721/MockERC721__factory",
@@ -148,27 +145,26 @@ describe("Collection controller", () => {
       .mockReturnValueOnce(mockCollections["0xfakeaddress"])
       .mockReturnValueOnce(mockCollections["0xfakeaddress2"]);
 
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
+    const response = new MockExpressResponse();
 
     await collectionController.list(request, response);
 
-    expect(result[0]).toBe(200);
-    expect(result[1]).toEqual(
+    expect(response.statusCode).toBe(200);
+    expect(response._getJSON()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           address: expect.any(String),
           contractURI: expect.any(String),
           name: expect.any(String),
           symbol: expect.any(String),
-          fee: expect.any(BigNumber),
-          floorPrice: expect.any(BigNumber),
+          fee: expect.objectContaining({ type: "BigNumber" }),
+          floorPrice: expect.objectContaining({ type: "BigNumber" }),
           isWhitelisted: expect.any(Boolean),
         }),
       ])
     );
-    expect(result[1][0].address).toBe("0xfakeaddress");
-    expect(result[1][1].address).toBe("0xfakeaddress2");
+    expect(response._getJSON()[0].address).toBe("0xfakeaddress");
+    expect(response._getJSON()[1].address).toBe("0xfakeaddress2");
   });
 
   it("read() --> should return CollectionData", async () => {
@@ -180,23 +176,23 @@ describe("Collection controller", () => {
         },
       },
     });
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
+    const response = new MockExpressResponse();
 
     await collectionController.read(request, response);
-    expect(result[0]).toBe(200);
-    expect(result[1]).toEqual(
+
+    expect(response.statusCode).toBe(200);
+    expect(response._getJSON()).toEqual(
       expect.objectContaining({
         address: expect.any(String),
         contractURI: expect.any(String),
         name: expect.any(String),
         symbol: expect.any(String),
-        fee: expect.any(BigNumber),
-        floorPrice: expect.any(BigNumber),
+        fee: expect.objectContaining({ type: "BigNumber" }),
+        floorPrice: expect.objectContaining({ type: "BigNumber" }),
         isWhitelisted: expect.any(Boolean),
       })
     );
-    expect(result[1].address).toBe("0xfakeaddress");
+    expect(response._getJSON().address).toBe("0xfakeaddress");
   });
 
   it("items() --> should return array of ItemData", async () => {
@@ -207,16 +203,15 @@ describe("Collection controller", () => {
         },
       },
     });
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
+    const response = new MockExpressResponse();
 
     await collectionController.items(request, response);
 
-    expect(result[0]).toBe(200);
-    expect(result[1]).toEqual(
+    expect(response.statusCode).toBe(200);
+    expect(response._getJSON()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          tokenId: expect.any(BigNumber),
+          tokenId: expect.objectContaining({ type: "BigNumber" }),
           tokenURI: expect.any(String),
           collectionAddress: expect.any(String),
           owner: expect.any(String),
@@ -229,7 +224,7 @@ describe("Collection controller", () => {
   it("items() --> should return array of ItemData branch query:user", async () => {
     const request = new MockExpressRequest({
       query: {
-        user: "0xfakeuseraddress"
+        user: "0xfakeuseraddress",
       },
       locals: {
         contracts: {
@@ -237,16 +232,15 @@ describe("Collection controller", () => {
         },
       },
     });
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
+    const response = new MockExpressResponse();
 
     await collectionController.items(request, response);
 
-    expect(result[0]).toBe(200);
-    expect(result[1]).toEqual(
+    expect(response.statusCode).toBe(200);
+    expect(response._getJSON()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          tokenId: expect.any(BigNumber),
+          tokenId: expect.objectContaining({ type: "BigNumber" }),
           tokenURI: expect.any(String),
           collectionAddress: expect.any(String),
           owner: expect.any(String),
@@ -266,21 +260,21 @@ describe("Collection controller", () => {
         },
       },
     });
-    const result: any[] = [];
-    const response = makeResponse((d) => result.push(d));
+    const response = new MockExpressResponse();
 
     await collectionController.item(request, response);
-    expect(result[0]).toBe(200);
-    expect(result[1]).toEqual(
+
+    expect(response.statusCode).toBe(200);
+    expect(response._getJSON()).toEqual(
       expect.objectContaining({
-        tokenId: expect.any(BigNumber),
+        tokenId: expect.objectContaining({ type: "BigNumber" }),
         tokenURI: expect.any(String),
         collectionAddress: expect.any(String),
         owner: expect.any(String),
       })
     );
-    expect(result[1].collectionAddress).toBe("0xfakeaddress");
-    expect(result[1].tokenURI).toBe("faketokenuri0");
+    expect(response._getJSON().collectionAddress).toBe("0xfakeaddress");
+    expect(response._getJSON().tokenURI).toBe("faketokenuri0");
   });
 
   it("collectionByAddress() --> should populate request.locals.contracts.collection", async () => {
@@ -289,8 +283,8 @@ describe("Collection controller", () => {
         contracts: {},
       },
     });
-
-    const mock = jest.fn();
+    const response = new MockExpressResponse();
+    const next = jest.fn();
 
     MockERC721__factory.connect
       // @ts-expect-error
@@ -298,13 +292,13 @@ describe("Collection controller", () => {
 
     await collectionController.collectionByAddress(
       request,
-      {} as Response,
-      mock,
+      response,
+      next,
       "fakeaddress"
     );
     expect(request.locals.contracts.collection).toEqual(
       mockCollections["0xfakeaddress"]
     );
-    expect(mock).toBeCalled();
+    expect(next).toBeCalled();
   });
 });

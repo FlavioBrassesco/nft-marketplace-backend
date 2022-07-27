@@ -83,7 +83,9 @@ const list = async (req: Request, res: Response) => {
   const auctions = <NFTAuctions>req.locals.contracts.auctions;
   const count = (await manager.getCollectionsCount()).toNumber();
 
-  const output = await Promise.all(
+  const collections: string[] = [];
+  let itemsByCollection: any = {};
+  await Promise.all(
     [...Array(count)].map(async (_, i) => {
       const collectionAddress = await manager.collectionByIndex(i);
 
@@ -95,11 +97,12 @@ const list = async (req: Request, res: Response) => {
           )
         : await getItems(collectionAddress, auctions);
 
-      return { collection: collectionAddress, items };
+      collections.push(collectionAddress);
+      itemsByCollection = { ...itemsByCollection, [collectionAddress]: items };
     })
   );
 
-  res.status(200).json(output);
+  res.status(200).json({ collections, ...itemsByCollection });
 };
 
 const items = async (req: Request, res: Response) => {
