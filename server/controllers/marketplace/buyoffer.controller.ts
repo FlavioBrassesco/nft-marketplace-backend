@@ -92,46 +92,46 @@ const getUserCollectionOffers = async (
 };
 
 // this is not needed now, but saved for later in case a user story that needs this arise
-const list = async (req: Request, res: Response) => {
-  const manager = <NFTCollectionManager>req.locals.contracts.manager;
-  const buyoffers = <NFTBuyOffers>req.locals.contracts.buyoffers;
+// const list = async (req: Request, res: Response) => {
+//   const manager = <NFTCollectionManager>req.locals.contracts.manager;
+//   const buyoffers = <NFTBuyOffers>req.locals.contracts.buyoffers;
 
-  const count = (await manager.getCollectionsCount()).toNumber();
+//   const count = (await manager.getCollectionsCount()).toNumber();
 
-  let collections: string[] = [];
-  let collectionOffers = {};
-  await Promise.all(
-    [...Array(count)].map(async (_, i) => {
-      const collectionAddress = await manager.collectionByIndex(i);
+//   let collections: string[] = [];
+//   let collectionOffers = {};
+//   await Promise.all(
+//     [...Array(count)].map(async (_, i) => {
+//       const collectionAddress = await manager.collectionByIndex(i);
 
-      const erc721 = MockERC721__factory.connect(
-        collectionAddress,
-        req.locals.web3Provider
-      );
+//       const erc721 = MockERC721__factory.connect(
+//         collectionAddress,
+//         req.locals.web3Provider
+//       );
 
-      const offers = req.query.user
-        ? await getUserCollectionOffers(
-            <string>req.query.user,
-            erc721,
-            buyoffers
-          )
-        : await getCollectionOffers(erc721, buyoffers);
+//       const offers = req.query.user
+//         ? await getUserCollectionOffers(
+//             <string>req.query.user,
+//             erc721,
+//             buyoffers
+//           )
+//         : await getCollectionOffers(erc721, buyoffers);
 
-      collections.push(collectionAddress);
-      collectionOffers = {
-        ...collectionOffers,
-        [collectionAddress]: offers,
-      };
-    })
-  );
+//       collections.push(collectionAddress);
+//       collectionOffers = {
+//         ...collectionOffers,
+//         [collectionAddress]: offers,
+//       };
+//     })
+//   );
 
-  const output = {
-    collections,
-    ...collectionOffers,
-  };
+//   const output = {
+//     collections,
+//     ...collectionOffers,
+//   };
 
-  res.status(200).json(output);
-};
+//   res.status(200).json(output);
+// };
 
 const read = async (req: Request, res: Response) => {
   const buyoffers = <NFTBuyOffers>req.locals.contracts.buyoffers;

@@ -16,7 +16,9 @@ import notFound from "./middlewares/not-found";
 import errorHandler from "./middlewares/error-handler";
 import ethersProvider from "./middlewares/ethers-provider";
 import CacheMiddleware from "./middlewares/cache/CacheMiddleware";
-import { checkRequestCache } from "./middlewares/cache/checkers";
+import checkRequestCache from "./middlewares/cache/check-request-cache";
+import requestCacher from "./middlewares/cache/request-cacher";
+import itemCacher from "./middlewares/cache/item-cacher";
 
 // express config
 const app = express();
@@ -27,6 +29,7 @@ app.use(helmet());
 app.use(cors());
 
 app.use((req, res, next) => {
+  // @ts-expect-error
   req.locals = {};
   next();
 });
@@ -35,10 +38,12 @@ app.use((req, res, next) => {
 app.use(ethersProvider);
 
 // intercepts json responses and calls cachers
-// requires registerChecker in each route that needs caching
+// requires registerChecker, and getCheckerMiddleware in each route that needs caching
 const cacheMiddleware = CacheMiddleware.getInstance();
 cacheMiddleware.registerApp(app);
-cacheMiddleware.registerChecker("requestChecker", checkRequestCache);
+cacheMiddleware.registerCacher(requestCacher);
+cacheMiddleware.registerCacher(itemCacher);
+cacheMiddleware.registerChecker("checkRequestCache", checkRequestCache);
 app.use(cacheMiddleware.getMiddleware());
 
 // routes

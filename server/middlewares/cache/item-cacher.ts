@@ -1,6 +1,6 @@
+/// <reference path="../../../types/index.d.ts" />
 import { Request } from "express";
 import Item, { IItem } from "../../models/item.model";
-import RequestCache, { IRequestCache } from "../../models/request-cache";
 import { AnyBulkWriteOperation } from "mongodb";
 import axios from "axios";
 
@@ -14,7 +14,7 @@ export const extractItemData = async (item): Promise<IItem> => {
   return item;
 };
 
-export const itemCacher = async (request: Request, data) => {
+export default async function itemCacher(request: Request, data) {
   if (/^(.*\/){0,1}collections.*\/items.*/.test(request.originalUrl)) {
     if (Array.isArray(data)) {
       const items: AnyBulkWriteOperation[] = await Promise.all(
@@ -39,19 +39,4 @@ export const itemCacher = async (request: Request, data) => {
       );
     }
   }
-};
-
-export const requestCacher = async (request: Request, data) => {
-  const requestCache: IRequestCache = {
-    originalUrl: request.originalUrl,
-    body: JSON.stringify(data),
-    blockNumber: request.locals.cacheData.blockNumber,
-    transactionHash: request.locals.cacheData.transactionHash,
-  };
-
-  await RequestCache.findOneAndUpdate(
-    { originalUrl: request.originalUrl },
-    requestCache,
-    { upsert: true }
-  );
-};
+}

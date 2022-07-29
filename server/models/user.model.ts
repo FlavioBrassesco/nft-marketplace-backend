@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { ethers } from "ethers";
+import { addressValidator } from "../helpers/validators";
 
 export interface IUser {
   username: string | undefined;
@@ -31,10 +32,7 @@ const UserSchema = new mongoose.Schema<IUserSchema>({
     unique: true,
     required: [true, "An address is required"],
     trim: true,
-    validate: {
-      validator: (v) => ethers.utils.isAddress(v),
-      message: (props) => `${props.value} is not a valid address`,
-    },
+    validate: addressValidator,
   },
   role: {
     type: String,

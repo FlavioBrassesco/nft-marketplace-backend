@@ -36,7 +36,7 @@ const getLatestCachedResponse = async (
   return cache;
 };
 
-export const checkRequestCache = async (request: Request) => {
+export default async function checkRequestCache(request: Request) {
   const cachedResponse = await getLatestCachedResponse(request);
   const bn = cachedResponse
     ? cachedResponse.blockNumber
@@ -87,6 +87,6 @@ export const checkRequestCache = async (request: Request) => {
 
   return {
     shouldCache: false,
-    body: cachedResponse.body
-  }
-};
+    body: cachedResponse.body,
+  };
+}
