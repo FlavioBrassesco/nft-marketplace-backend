@@ -1,11 +1,8 @@
-# TODO
+# Open source NFT Marketplace Backend  
+This is the backend for https://github.com/FlavioBrassesco/nft-marketplace-contracts  
 
-- corregir locals.users
+The project implements a REST API for fetching data in the NFT Marketplace contracts  
+It also implements a request caching system with MongoDB  
 
-- setup an event based caching mechanism (blockchain event listener + instant record when doing transactions via marketplace)
-- setup a cache middleware for common view requests
--- middleware in process. We need to check the contracts from were we are returning the logs.  
--- need to check we don't return cached unauth responses  
--- for bigger projects, this middleware should become only a checker, and the cache writing system should move to a separate instance.
-- Parse JSON from tokenURI and contractURI
-- Paginate blockchain requests
+TODO:  
+- Item caching system that allows to filter items by price and traits
